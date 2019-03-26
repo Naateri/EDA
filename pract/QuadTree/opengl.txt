@@ -1,0 +1,1 @@
+-Wall -pedantic-errors -O0 -lGL -lGLU -lglut

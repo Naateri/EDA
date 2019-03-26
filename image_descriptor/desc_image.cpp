@@ -41,7 +41,7 @@ str num4digits(int z){
 	return ret;
 }
 
-double average(int_vec& values){
+double average(int_vec& values){ //finds average from a group of data
 	double total = 0.0;
 	for (int i = 0; i < values.size(); i++){
 		total += values.at(i);
@@ -53,7 +53,7 @@ cv::Vec3b get_RGB(cv::Mat img, int x, int y){
 	return img.at<cv::Vec3b>(cv::Point(x,y));
 }
 
-double_vec dimensions(const char* filename){
+double_vec dimensions(const char* filename){ //builds the vector with averages as RGB
 	//get points
 	cv::Mat img = cv::imread(filename, cv::IMREAD_COLOR);
 	int new_rows, new_cols, size, ptr;
@@ -96,17 +96,20 @@ double_vec dimensions(const char* filename){
 	return dimensions;
 }
 
-void vec_to_txt(double_vec& dim){
+void vec_to_txt(double_vec& dim, const char* filename = NULL){ //saves the vec to a txt
 	txt_file result;
 	result.open("desc_image_result.txt", fstream::app);
+	if (filename){		
+		result << filename << ':';
+	}
 	for(int i = 0; i < dim.size(); i++){
 		result << dim.at(i) << ',';
 	}
 	result << endl;
 }
 
-void build_representative(double_vec& dim, int cols, int rows, cv::Mat &result){
-	int ptr = 0;
+void build_representative(double_vec& dim, int cols, int rows, cv::Mat &result){ //builds the image
+	int ptr = 0; //using the averaged regions
 	int new_cols, new_rows;
 	new_cols = result.cols >> 3;
 	new_rows = result.rows >> 3;
@@ -123,14 +126,13 @@ void build_representative(double_vec& dim, int cols, int rows, cv::Mat &result){
 					//cout << "x: " << new_cols*i + x << ", y: " << new_rows*j + y << endl;
 				}
 			}
-			//result.at<cv::Vec3b>(cv::Point(x,y)) = color;
 		}
 	}
 }
 
 
-void rgb_values(const char* filename, int_vec& red, int_vec& green, int_vec& blue){
-	cv::Mat image;
+void rgb_values(const char* filename, int_vec& red, int_vec& green, int_vec& blue){ //finds rgb for every pixel
+	cv::Mat image; //not used
 	int size, ptr = 0;
 	cv::Vec3b colors;
 	image = cv::imread(filename, cv::IMREAD_COLOR);
@@ -155,7 +157,7 @@ void rgb_values(const char* filename, int_vec& red, int_vec& green, int_vec& blu
 	//return values;
 }
 
-str folders[] = {"accordion", "airplanes", "anchor", "ant", "BACKGROUND_GOOGLE",
+str folders[] = {"accordion", "airplanes", "anchor", "ant", "BACKGROUND_Google",
 	"barrel", "bass", "beaver", "binocular", "bonsai", "brain", "brontosaurus",
 	"buddha", "butterfly", "camera", "cannon", "car_side", "ceiling_fan",
 	"cellphone", "chair", "chandelier", "cougar_body", "cougar_face",
@@ -173,7 +175,7 @@ str folders[] = {"accordion", "airplanes", "anchor", "ant", "BACKGROUND_GOOGLE",
 	"scissors","scorpion","sea_horse","snoopy","soccer_ball",
 	"stapler","starfish","stegosaurus","stop_sign","strawberry",
 	"sunflower","tick","trilobite","umbrella","watch","water_lilly",
-	"wheelchair","wild_cat","windsor_chair","wrench","ying_yang"};
+	"wheelchair","wild_cat","windsor_chair","wrench","yin_yang"};
 
 int amount[] = {55,800,42,42,468,47,54,46,33,128,98,43,85,91,50,
 	43,123,47,59,62,107,47,69,73,70,50,51,57,67,52,65,68,75,64,
@@ -189,6 +191,7 @@ int main(int argc, char *argv[]) {
 	/*int_vec red, green, blue;
 	rgb_values("reddit.png", red, green, blue);
 	cout << "red.at(1203): " << red.at(1203) << endl;*/
+	cout << "folders: " << sizeof(amount)/sizeof(int) << endl;
 	double_vec dims;
 	char* filename;
 	str folder, temp, num;
@@ -204,24 +207,26 @@ int main(int argc, char *argv[]) {
 		for(cur_pic = 1; cur_pic <= max_pic; cur_pic++){
 			dims.clear();
 			num = num4digits(cur_pic);
-			/*cout << filename[21 + folder.size() + 7] << filename[21 + folder.size() + 8] <<
-				filename[21 + folder.size() + 9] << filename[21 + folder.size() + 10] << endl;*/
+			//cout << filename[21 + folder.size() + 7] << filename[21 + folder.size() + 8] <<
+				//filename[21 + folder.size() + 9] << filename[21 + folder.size() + 10] << endl;
 			filename[21 + folder.size() + 7] = num[0];
 			filename[21 + folder.size() + 8] = num[1];
 			filename[21 + folder.size() + 9] = num[2];
 			filename[21 + folder.size() + 10] = num[3];
 			//cout << "filename: " << filename << endl;
 			dims = dimensions(filename);
-			vec_to_txt(dims);
+			vec_to_txt(dims, filename);
+			num.clear();
 		}
 		delete [] filename;				
 	}
-	/*dims = dimensions("image_0020.jpg");
+	//dims = dimensions("image_0020.jpg");
+	/*dims = dimensions("101_ObjectCategories/yin_yang/image_0047.jpg");
 	vec_to_txt(dims);
-	cv::Mat img = cv::imread("image_0020.jpg", cv::IMREAD_COLOR);
+	cv::Mat img = cv::imread("101_ObjectCategories/yin_yang/image_0047.jpg", cv::IMREAD_COLOR);
 	build_representative(dims, 0, 0, img);
-	imwrite("image_0020_r.jpg", img);*/
-	
+	imwrite("101_ObjectCategories/yin_yang/image_0047_r.jpg", img);
+	*/
 	return 0;
 }
 
