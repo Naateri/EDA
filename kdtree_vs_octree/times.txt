@@ -1,0 +1,52 @@
+Insertion KD-Tree with 100 points: 7.5e-05 seconds.
+Search in a KD-Tree with 100 points: 6e-07 seconds.
+Insertion KD-Tree with 1000 points: 0.00167 seconds.
+Search in a KD-Tree with 1000 points: 8e-07 seconds.
+Insertion KD-Tree with 5000 points: 0.014979 seconds.
+Search in a KD-Tree with 5000 points: 2.8e-06 seconds.
+Insertion KD-Tree with 10000 points: 0.034854 seconds.
+Search in a KD-Tree with 10000 points: 8e-07 seconds.
+Insertion KD-Tree with 50000 points: 0.209506 seconds.
+Search in a KD-Tree with 50000 points: 1e-06 seconds.
+Insertion KD-Tree with 100000 points: 0.517651 seconds.
+Search in a KD-Tree with 100000 points: 7.8e-06 seconds.
+Insertion KD-Tree with 250000 points: 1.65214 seconds.
+Search in a KD-Tree with 250000 points: 1.8e-06 seconds.
+Insertion KD-Tree with 500000 points: 3.96975 seconds.
+Search in a KD-Tree with 500000 points: 2.4e-06 seconds.
+Insertion KD-Tree with 100 points: 0.000468 seconds.
+Search in a KD-Tree with 100 points: 8e-07 seconds.
+Insertion KD-Tree with 1000 points: 0.00578 seconds.
+Search in a KD-Tree with 1000 points: 1.2e-06 seconds.
+Insertion KD-Tree with 5000 points: 0.034527 seconds.
+Search in a KD-Tree with 5000 points: 2e-06 seconds.
+Insertion KD-Tree with 10000 points: 0.065555 seconds.
+Search in a KD-Tree with 10000 points: 1.4e-06 seconds.
+Insertion KD-Tree with 50000 points: 0.385024 seconds.
+Search in a KD-Tree with 50000 points: 1.8e-06 seconds.
+Insertion KD-Tree with 100000 points: 0.856895 seconds.
+Search in a KD-Tree with 100000 points: 2.8e-06 seconds.
+Insertion KD-Tree with 250000 points: 2.39455 seconds.
+Search in a KD-Tree with 250000 points: 3.2e-06 seconds.
+Insertion KD-Tree with 500000 points: 5.43188 seconds.
+Search in a KD-Tree with 500000 points: 8.8e-06 seconds.
+Insertion KD-Tree with 100 points: 0.000645 seconds.
+Search in a KD-Tree with 100 points: 1.8e-06 seconds.
+Insertion KD-Tree with 1000 points: 0.007417 seconds.
+Search in a KD-Tree with 1000 points: 1.2e-06 seconds.
+Insertion KD-Tree with 5000 points: 0.03034 seconds.
+Search in a KD-Tree with 5000 points: 4e-06 seconds.
+Insertion KD-Tree with 10000 points: 0.064539 seconds.
+Search in a KD-Tree with 10000 points: 4.2e-06 seconds.
+Insertion KD-Tree with 50000 points: 0.377514 seconds.
+Search in a KD-Tree with 50000 points: 2.4e-06 seconds.
+Insertion KD-Tree with 100000 points: 0.847213 seconds.
+Search in a KD-Tree with 100000 points: 3.4e-06 seconds.
+Insertion KD-Tree with 250000 points: 2.41807 seconds.
+Search in a KD-Tree with 250000 points: 2.6e-06 seconds.
+Insertion KD-Tree with 500000 points: 5.36668 seconds.
+Search in a KD-Tree with 500000 points: 3.4e-06 seconds.
+Insertion KD-Tree with 1000000 points: 12.1145 seconds.
+Search in a KD-Tree with 1000000 points: 3.4e-06 seconds.
+Insertion KD-Tree with 5000000 points: 81.3985 seconds.
+Search in a KD-Tree with 5000000 points: 9.8e-06 seconds.

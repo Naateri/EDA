@@ -17,15 +17,15 @@ current_source=main.cpp
 path_char=/
 [source]
 path=main.cpp
-cursor=0:0
+cursor=72:0
 open=true
 [source]
 path=QuadTree.cpp
-cursor=0:0
+cursor=11:17
 open=true
 [header]
 path=QuadTree.h
-cursor=0:0
+cursor=5:9
 open=true
 [config]
 name=Debug
@@ -57,7 +57,7 @@ debug_level=2
 optimization_level=0
 enable_lto=0
 headers_dirs=
-linking_extra=
+linking_extra=-lGL -lGLU -lglut
 libraries_dirs=
 libraries=
 strip_executable=0

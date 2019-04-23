@@ -1,0 +1,34 @@
+Insertion KD-Tree with 100 points: 0.000774 seconds.
+Insertion Octree with 100 points: 7.4e-05 seconds.
+Search in a KD-Tree with 100 points: 1e-06 seconds.
+Search in an Octree with 100 points: 1e-06 seconds.
+
+Insertion KD-Tree with 1000 points: 0.050839 seconds.
+Insertion Octree with 1000 points: 0.000939 seconds.
+Search in a KD-Tree with 1000 points: 1.2e-06 seconds.
+Search in an Octree with 1000 points: 4e-07 seconds.
+
+Insertion KD-Tree with 5000 points: 1.17851 seconds.
+Insertion Octree with 5000 points: 0.004557 seconds.
+Search in a KD-Tree with 5000 points: 1.2e-06 seconds.
+Search in an Octree with 5000 points: 8e-07 seconds.
+
+Insertion KD-Tree with 10000 points: 4.87361 seconds.
+Insertion Octree with 10000 points: 0.008759 seconds.
+Search in a KD-Tree with 10000 points: 1.8e-06 seconds.
+Search in an Octree with 10000 points: 1.2e-06 seconds.
+
+Insertion KD-Tree with 50000 points: 215.278 seconds.
+Insertion Octree with 50000 points: 0.067231 seconds.
+Search in a KD-Tree with 50000 points: 2.2e-06 seconds.
+Search in an Octree with 50000 points: 1.4e-06 seconds.
+
+Insertion KD-Tree with 100000 points: 1297.98 seconds.
+Insertion Octree with 100000 points: 0.145594 seconds.
+Search in a KD-Tree with 100000 points: 2.4e-06 seconds.
+Search in an Octree with 100000 points: 1.8e-06 seconds.
+
+Insertion KD-Tree with 250000 points: 9188.88 seconds.
+Insertion Octree with 250000 points: 0.393939 seconds.
+Search in a KD-Tree with 250000 points: 2.8e-06 seconds.
+Search in an Octree with 250000 points: 1.8e-06 seconds.
