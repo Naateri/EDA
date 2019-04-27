@@ -141,7 +141,7 @@ void Octree::subdivide(){
 		six->insert(points.at(i));
 		seven->insert(points.at(i));
 	}
-//	this->points.clear();
+	this->points.clear();
 }
 
 bool Octree::find(Point3D* pt, Octree*& region){
@@ -170,10 +170,8 @@ bool Octree::find(Point3D* pt, Octree*& region){
 }
 
 void Octree::range_query(vector<Point3D*>& points, sphere radius){
-	//if (!(this->volume.intersects(radius))) return; //octant not within the radius
 	if (!radius.bbox_in_sphere(this->volume)) return; //no intersection between sphere and current octant
 	for (int i = 0; i < this->points.size(); i++){
-		//if (this->volume.point_in_bbox(this->points.at(i))) 
 		if (radius.point_in_sphere(this->points.at(i)))
 			points.push_back(this->points.at(i));
 	}

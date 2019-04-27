@@ -15,7 +15,7 @@
 #define minimum -25.0f
 #define maximum 25.0f
 #define ESCALAR 8 //for .obj's
-#define RANDOM_POINTS 1000
+#define RANDOM_POINTS 500000
 
 using namespace std;
 
@@ -203,6 +203,7 @@ void glPaint(void) {
 	for (int i = 0; i < range_query.size(); i++){
 		glVertex3f(range_query.at(i)->x,range_query.at(i)->y,range_query.at(i)->z);
 	}
+	//cout << "Points inside sphere: " << range_query.size() << endl;
 	glColor3d(255,20,47);
 	glEnd();
 	//dibuja el gizmo
@@ -276,7 +277,7 @@ int main(int argc, char** argv) {
 	
 	//Inicializacion de la GLUT
 	
-	ifstream file("Objects/bunny.obj");
+//	ifstream file("Objects/bunny.obj");
 //	ifstream file("Objects/f16.obj");
 //	ifstream file("Objects/tyra.obj");
 	

@@ -86,19 +86,26 @@ struct Node{
 ///3 dimensional KDTree///
 class KDTree{
 private:
-	const int max_points = MAX_PTS;
+	int max_points = MAX_PTS;
+	float two_five, fifty, seven_five;
+	bool b_two_five, b_fifty, b_seven_five;
 	bbox_3d limits;
 	vector<Point3D*> points;
-	void create(Node* current, short);
+	void create(Node* current, short, clock_t*, int&);
 public:
 	Node* root;
+	double times[4];
 	KDTree();
-	KDTree(vector<Point3D*>, bbox_3d lim);
+	//KDTree(vector<Point3D*>, bbox_3d lim);
+	KDTree(vector<Point3D*>, bbox_3d lim, int maxp);
 	bool find(Point3D* pt, Node**& p, short);
 	bool insert(Point3D* pt);
 	void preorder(Node* current);
 	void inorder(Node* current);
 	void print_tree(Node* current, short);
 	void draw_kd(Node* current, short current_dimension);
+	void set_max(int pts){
+		this->max_points = pts;
+	}
 	Point3D* get_random_point();
 };

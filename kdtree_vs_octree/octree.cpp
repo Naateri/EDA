@@ -5,6 +5,7 @@ Octree::Octree(){
 		= this->four = this->five = this->six = this->seven = 0;
 	bbox_3d temp(Point3D(0.0f, 0.0f, 0.0f), Point3D(0.0f, 0.0f, 0.0f));
 	this->volume = temp;
+	this->b_two_five = this->b_fifty = this->b_seven_five = 0;
 }
 
 Octree::Octree(Point3D mini, Point3D maxi){
@@ -12,6 +13,7 @@ Octree::Octree(Point3D mini, Point3D maxi){
 	this->volume = temp;
 	this->zero = this->one = this->two = this->three
 		= this->four = this->five = this->six = this->seven = 0;
+	this->b_two_five = this->b_fifty = this->b_seven_five = 0;
 }
 
 bool Octree::in_bbox(Point3D* pt){
@@ -32,7 +34,6 @@ bool Octree::insert(Point3D* pt){
 		//cout << "Points.size(): " << points.size() << endl;
 		return 1;
 	}
-	//if (!zero) cout << "current points: " << points.size() << endl;
 	if (!zero){
 		subdivide();
 		//cout << "Partitioning\n";
@@ -135,7 +136,6 @@ void Octree::subdivide(){
 	six->set_maxpts(this->max_elements);
 	seven->set_maxpts(this->max_elements);
 	
-	//cout << "num of points: " << points.size() << endl;
 	for(int i = 0; i < this->points.size(); i++){
 		zero->insert(points.at(i));
 		one->insert(points.at(i));
@@ -146,11 +146,90 @@ void Octree::subdivide(){
 		six->insert(points.at(i));
 		seven->insert(points.at(i));
 	}
+	this->points.clear();
 }
+
+void Octree::draw(){
+	if (!zero) return;
+	glBegin(GL_LINES);
+	glEnable(GL_PROGRAM_POINT_SIZE);
+	
+	//glColor3d(255,20,47);
+	glVertex3d(zero->volume.mini.values[0], zero->volume.maxi.values[1], 0);
+	glVertex3d(three->volume.maxi.values[0], three->volume.mini.values[1], 0);
+	//glColor3d(0, 0, 255);
+	glVertex3d(zero->volume.maxi.values[0], zero->volume.mini.values[1], 0);
+	glVertex3d(three->volume.mini.values[0], three->volume.maxi.values[1], 0);
+	
+	//glColor3d(255,20,47);
+	glVertex3d(zero->volume.mini.values[0], zero->volume.maxi.values[1], volume.maxi.values[2]);
+	glVertex3d(three->volume.maxi.values[0], three->volume.mini.values[1], volume.maxi.values[2]);
+	//glColor3d(0, 0, 255);
+	glVertex3d(zero->volume.maxi.values[0], zero->volume.mini.values[1], volume.maxi.values[2]);
+	glVertex3d(three->volume.mini.values[0], three->volume.maxi.values[1], volume.maxi.values[2]);
+	
+	//glColor3d(255,20,47);
+	glVertex3d(zero->volume.mini.values[0], zero->volume.maxi.values[1], volume.mini.values[2]);
+	glVertex3d(three->volume.maxi.values[0], three->volume.mini.values[1], volume.mini.values[2]);
+	//glColor3d(0, 0, 255);
+	glVertex3d(zero->volume.maxi.values[0], zero->volume.mini.values[1], volume.mini.values[2]);
+	glVertex3d(three->volume.mini.values[0], three->volume.maxi.values[1], volume.mini.values[2]);
+	
+	/////////x////////////////////
+	
+	glVertex3d(0, zero->volume.maxi.values[1], zero->volume.mini.values[2]); //repeat changing x
+	glVertex3d(0, seven->volume.mini.values[1], seven->volume.maxi.values[2]);
+	
+	glVertex3d(volume.mini.values[0], zero->volume.maxi.values[1], zero->volume.mini.values[2]); //repeat changing x
+	glVertex3d(volume.mini.values[0], seven->volume.mini.values[1], seven->volume.maxi.values[2]);
+	
+	glVertex3d(volume.mini.values[0], zero->volume.mini.values[1], zero->volume.maxi.values[2]);
+	glVertex3d(volume.mini.values[0], seven->volume.maxi.values[1], seven->volume.mini.values[2]);
+	
+	glVertex3d(volume.maxi.values[0], zero->volume.maxi.values[1], zero->volume.mini.values[2]); //repeat changing x
+	glVertex3d(volume.maxi.values[0], seven->volume.mini.values[1], seven->volume.maxi.values[2]);
+	
+	glVertex3d(volume.maxi.values[0], zero->volume.mini.values[1], zero->volume.maxi.values[2]);
+	glVertex3d(volume.maxi.values[0], seven->volume.maxi.values[1], seven->volume.mini.values[2]);
+	
+	//glColor3d(255,20,47);
+	
+	/////////////y//////////
+	
+	//glColor3d(255, 0, 0);
+	glVertex3d(seven->volume.maxi.values[0], volume.mini.values[1], zero->volume.maxi.values[2]); 
+	glVertex3d(zero->volume.mini.values[0], volume.mini.values[1], seven->volume.mini.values[2]);
+	
+	glVertex3d(seven->volume.mini.values[0], volume.mini.values[1], zero->volume.mini.values[2]);
+	glVertex3d(zero->volume.maxi.values[0], volume.mini.values[1], seven->volume.maxi.values[2]);
+	
+	//glColor3d(255,20,47);
+	glVertex3d(seven->volume.maxi.values[0], volume.maxi.values[1], zero->volume.maxi.values[2]); 
+	glVertex3d(zero->volume.mini.values[0], volume.maxi.values[1], seven->volume.mini.values[2]);
+	
+	glVertex3d(seven->volume.mini.values[0], volume.maxi.values[1], zero->volume.mini.values[2]);
+	glVertex3d(zero->volume.maxi.values[0], volume.maxi.values[1], seven->volume.maxi.values[2]);
+	
+	glVertex3d(seven->volume.maxi.values[0], 0, zero->volume.maxi.values[2]); 
+	glVertex3d(zero->volume.mini.values[0], 0, seven->volume.mini.values[2]);
+	
+	glVertex3d(seven->volume.mini.values[0], 0, zero->volume.mini.values[2]);
+	glVertex3d(zero->volume.maxi.values[0], 0, seven->volume.maxi.values[2]);
+	
+	if (zero) zero->draw();
+	if (one) one->draw();
+	if (two) two->draw();
+	if (three) three->draw();
+	if (four) four->draw();
+	if (five) five->draw();
+	if (six) six->draw();
+	if (seven) seven->draw();
+	glEnd();
+}
+
 
 bool Octree::find(Point3D* pt, Octree*& region){
 	if (!in_bbox(pt)) return 0;
-	
 	if (!zero){ //can't go any further down
 		region = this; //point, whether it exists or not, should be here
 		for (int i = 0; i < this->points.size(); i++){
@@ -177,14 +256,42 @@ void Octree::set_maxpts(int pts){
 	this->max_elements = pts;
 }
 
-Point3D* Octree::get_rand_point(){
-	srand(rand());
-	return points.at(rand()%points.size());
-}
-
 void Octree::print_points(){
 	cout << "Points in this region are:\n";
 	for(int i = 0; i < this->points.size(); i++){
 		points.at(i)->print();
 	}
+}
+
+void Octree::insert_points_vector(vector<Point3D*> object_pts){
+	two_five = object_pts.size() * 0.25;
+	fifty = object_pts.size() * 0.5;
+	seven_five = object_pts.size() * 0.75;
+	b_two_five = b_fifty = b_seven_five = 0;
+	clock_t begin = clock(), end0;
+	int current_points = 0;
+	for(int i = 0; i < object_pts.size(); i++){
+		insert(object_pts[i]);
+		if (i >= (int)two_five && !b_two_five){
+			end0 = clock();
+			times[0] = double(end0-begin)/CLOCKS_PER_SEC;
+			b_two_five = 1;
+			begin = clock();
+		} else if (i >= (int)fifty && !b_fifty){
+			end0 = clock();
+			times[1] = double(end0-begin)/CLOCKS_PER_SEC + times[0];
+			b_fifty = 1;
+			begin = clock();
+		} else if (i >= (int)seven_five && !b_seven_five){
+			end0 = clock();
+			times[2] = double(end0-begin)/CLOCKS_PER_SEC + times[1];
+			b_seven_five = 1;
+			begin = clock();
+		}
+		
+	}
+	clock_t end = clock();
+	times[3] = double(end - begin)/CLOCKS_PER_SEC;
+	//for(int i = 0; i < 4; i++) times[i] *= 10;
+	//cout << "Points: " << current_points << endl;
 }

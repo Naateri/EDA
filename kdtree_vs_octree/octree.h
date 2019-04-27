@@ -22,17 +22,21 @@ private:
 	vector<Point3D*> points;
 	//bbox_3d volume;
 	bool in_bbox(Point3D* pt);
+	
+	float two_five, fifty, seven_five;
+	bool b_two_five, b_fifty, b_seven_five;
 public:
 	bbox_3d volume;
+	double times[4];
 	Octree();
 	Octree(Point3D mini, Point3D maxi);
 	bool insert(Point3D* pt);
 	void subdivide();
-	//void draw();
+	void draw();
 	void set_maxpts(int);
 	bool find(Point3D* pt, Octree*& region);
-	Point3D* get_rand_point();
 	void print_points();
+	void insert_points_vector(vector<Point3D*> object_pts);
 };
 
 

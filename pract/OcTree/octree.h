@@ -8,7 +8,7 @@
 #include <cstdlib>
 #include <ctime>
 
-#define MAX_PTS 4
+#define MAX_PTS 3
 
 using namespace std;
 
@@ -63,14 +63,9 @@ struct sphere{
 	}
 	bool bbox_in_sphere(bbox_3d AABB){ //based from https://yal.cc/rectangle-circle-intersection-test/
 		float deltaX, deltaY, deltaZ;
-		float mid_x, mid_y, mid_z;
-		mid_x = (AABB.maxi.x + AABB.mini.x)/2;
-		mid_y = (AABB.maxi.y + AABB.mini.y)/2;
-		mid_z = (AABB.maxi.z + AABB.mini.z)/2;
 		deltaX = origin->x - max(AABB.mini.x, min(origin->x, AABB.mini.x + (AABB.maxi.x - AABB.mini.x)));
 		deltaY = origin->y - max(AABB.mini.y, min(origin->y, AABB.mini.y + (AABB.maxi.y - AABB.mini.y)));;
 		deltaZ = origin->z - max(AABB.mini.z, min(origin->z, AABB.mini.z + (AABB.maxi.z - AABB.mini.z)));;
-		//return (pow(deltaX, 2) + pow(deltaY,2) + pow(deltaZ,2)) < pow(radius,2);
 		return (deltaX*deltaX + deltaY*deltaY + deltaZ*deltaZ) < (radius*radius);
 	}
 };

@@ -31,10 +31,16 @@ KDTree::KDTree(){
 	root = 0;
 }
 
-KDTree::KDTree(vector<Point3D*> points, bbox_3d lim){
+KDTree::KDTree(vector<Point3D*> points, bbox_3d lim, int maxp){
 	bbox_3d low_bound, up_bound;
 	this->points = points;
 	this->limits = lim;
+	this->max_points = maxp;
+	two_five = points.size() * 0.25;
+	fifty = points.size() * 0.5;
+	seven_five = points.size() * 0.75;
+	b_two_five = b_fifty = b_seven_five = 0;
+	
 	float median_x;
 	Node* temp;
 	
@@ -45,6 +51,8 @@ KDTree::KDTree(vector<Point3D*> points, bbox_3d lim){
 	this->root->region = points;
 	
 	//after sorting, this->points[this->points.size()>>1] is the median
+	clock_t begin = clock();
+	clock_t* ptr_begin = &begin;
 	median_x = this->points[this->points.size()>>1]->values[0];
 	low_bound.maxi.values[0] = median_x;
 	up_bound.mini.values[0] = median_x;
@@ -54,9 +62,17 @@ KDTree::KDTree(vector<Point3D*> points, bbox_3d lim){
 	//will be updated soon
 	root->left->region = root->region;
 	root->right->region = root->region;
+	
+	int current_points = 2;
 		
-	create(root->left, 1);
-	create(root->right, 1);
+	create(root->left, 1, ptr_begin, current_points);
+	create(root->right, 1, ptr_begin, current_points);
+	
+	clock_t end = clock();
+	times[3] = double(end - *ptr_begin)/CLOCKS_PER_SEC + times[2];
+	//cout << "Total of points: " << current_points << endl;
+	
+	//for(int i = 0; i < 4; i++) times[i] *= 10;
 	
 	cout << "Tree created.\n";
 }
@@ -72,7 +88,6 @@ bool KDTree::find(Point3D* pt, Node**& p, short cur_dim){
 		}
 		cur_dim = (cur_dim + 1) % 3;
 	}
-//	cout << (*p)->value << "; " << pt << endl;
 	if (!(*p)->value) return 0;
 	for (int i = 0; i < (*p)->region.size(); i++){
 		if ((*p)->region.at(i) == pt) return 1;
@@ -88,7 +103,7 @@ bool KDTree::insert(Point3D* pt){
 }
 
 
-void KDTree::create(Node* current, short cur_dim){
+void KDTree::create(Node* current, short cur_dim, clock_t* begin, int& current_points){
 	vector<Point3D*> pts;
 	bbox_3d low_bound, up_bound;
 	float median;
@@ -101,7 +116,8 @@ void KDTree::create(Node* current, short cur_dim){
 	}
 	current->region.clear();
 	current->region = pts;
-	if (pts.size() < max_points){
+	if (pts.size() <= max_points){
+		current_points += pts.size();
 		return; //max points at region, end of creation
 	}
 	
@@ -130,8 +146,33 @@ void KDTree::create(Node* current, short cur_dim){
 	current->region.clear(); //no need to keep the vector, so let's save some space
 	
 	cur_dim = (cur_dim+1) % 3;
-	create(current->left, cur_dim);
-	create(current->right, cur_dim);
+	
+	current_points+=2;
+	if (current_points >= (int)two_five && !b_two_five){
+		clock_t end = clock();
+		times[0] = double(end - *begin)/CLOCKS_PER_SEC;
+		b_two_five = 1;
+		clock_t new_begin = clock();
+		begin = &new_begin;
+		//cout << "25%\n";
+	} else if (current_points >= (int)fifty && !b_fifty){
+		clock_t end = clock();
+		times[1] = double(end - *begin)/CLOCKS_PER_SEC + times[0];
+		b_fifty = 1;
+		clock_t new_begin = clock();
+		begin = &new_begin;
+		//cout << "50%\n";
+	}else if (current_points >= (int)seven_five && !b_seven_five){
+		clock_t end = clock();
+		times[2] = double(end - *begin)/CLOCKS_PER_SEC + times[1];
+		b_seven_five = 1;
+		clock_t new_begin = clock();
+		begin = &new_begin;
+		//cout << "75%\n";
+	}
+	//cout << "current point: " << cur_points_inserted << endl;
+	create(current->left, cur_dim, begin, current_points);
+	create(current->right, cur_dim, begin, current_points);
 }
 
 void KDTree::preorder(Node* current){
