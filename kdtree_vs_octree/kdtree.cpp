@@ -88,11 +88,11 @@ bool KDTree::find(Point3D* pt, Node**& p, short cur_dim){
 		}
 		cur_dim = (cur_dim + 1) % 3;
 	}
-	if (!(*p)->value) return 0;
+	//if (!(*p)->value) return 0;
 	for (int i = 0; i < (*p)->region.size(); i++){
 		if ((*p)->region.at(i) == pt) return 1;
-		return 0;
 	}
+	return 0;
 	//return !!((*p)->value);
 }
 

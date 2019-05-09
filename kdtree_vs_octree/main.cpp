@@ -11,7 +11,7 @@
 //#include "kdtree.h"
 #include "octree.h"
 
-#define GEN_POINTS 10
+#define GEN_POINTS 2022
 #define LOW -50.0f
 #define HIGH 50.0f
 #define PTS_SEARCH 15
@@ -350,13 +350,10 @@ int main (int argc, char *argv[]) {
 	Point3D* pt;//= new Point3D(3,2,3);
 	Node** p;
 	
-	ifstream file("Objects/tyra.obj");
+	//ifstream file("Objects/tyra.obj");
 	
-	read_obj(file, points);
+	//read_obj(file, points);
 	
-	//fill_points();
-	
-
 	//Inicializacion de la GLUT
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);

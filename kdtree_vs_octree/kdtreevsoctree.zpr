@@ -17,11 +17,11 @@ current_source=main.cpp
 path_char=/
 [source]
 path=main.cpp
-cursor=331:29
+cursor=350:10
 open=true
 [source]
 path=kdtree.cpp
-cursor=74:3
+cursor=87:3
 open=true
 [source]
 path=octree.cpp
