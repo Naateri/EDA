@@ -18,11 +18,14 @@ struct Point2D{
 		this-> x = x;
 		this->y = y;
 	}
+	void print(){
+		cout << "x: " << x << ", y: " << y << endl;
+	}
 };
 
 struct B_Box{ //bounding box
 	Point2D top_left, bottom_right; //minimum needed for a bounding box
-	bool leaf = 1;
+	//bool leaf = 1;
 	B_Box(){
 		top_left = Point2D(0,0);
 		bottom_right = Point2D(0,0);
@@ -31,7 +34,12 @@ struct B_Box{ //bounding box
 	double area(){
 		return ( (top_left.x - bottom_right.x) * (top_left.y - bottom_right.y) );
 	}
+	void print(){
+		cout << "top left: "; top_left.print();
+		cout << "bot right: "; bottom_right.print();
+	}
 };
+
 
 struct RNode{
 	B_Box covering_rectangle;
@@ -57,6 +65,13 @@ struct RNode{
 		covering_rectangle.top_left.y = max_tl_y;
 		covering_rectangle.bottom_right.x = max_br_x;
 		covering_rectangle.bottom_right.y = min_br_y;
+	}
+	
+	void print_points(){
+		for(int i = 0; i < objects.size(); i++){
+			cout << "Child" << i+1 << ": ";
+			objects.at(i)->print();
+		}
 	}
 };
 

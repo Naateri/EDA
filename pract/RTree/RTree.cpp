@@ -7,15 +7,43 @@ RTree::RTree(int m){
 }
 
 void RTree::choose_leaf(RNode*& N, B_Box* elem){
-	N = this->root;
 	if (N->pointers.size() == 0) return; //N is a leaf
+	cout << "Going to a leaf\n";
+	B_Box* cur_bbox = new B_Box;
+	int pos;
+	double cur_area, enlargement, min_enlargement = 999999;
+	for(int i = 0; i < N->objects.size(); i++){
+		*cur_bbox = N->covering_rectangle;
+		N->objects.push_back(elem);
+		N->adjust_rectangle();
+		
+		enlargement = cur_bbox->area() - N->covering_rectangle.area();
+		if (enlargement < 0) enlargement *= -1;
+		if (enlargement == min_enlargement){
+			if (cur_bbox->area() < cur_area){
+				pos = i;
+				cur_area = cur_bbox->area();
+			}
+		}
+		else if (enlargement < min_enlargement){
+			pos = i;
+			cur_area = cur_bbox->area();
+			min_enlargement = enlargement;
+		}
+		N->objects.erase(N->objects.end() - 1);
+		
+		N->adjust_rectangle();
+	}
 	
+	delete cur_bbox;
+	N = N->pointers.at(pos);
+	choose_leaf(N, elem);
 }
 
 pair<int, int> RTree::PickSeeds(RNode*& cur_node, B_Box*& max_J){
 	//returns index of selected pair
 	double d, max_d;
-	max_d = 0.0;
+	max_d = -9999999;
 	pair<int, int> result;
 	B_Box* J = new B_Box;
 	//B_Box J; //ver cual top left es mas top left, mismo con bottom right
@@ -45,6 +73,7 @@ pair<int, int> RTree::PickSeeds(RNode*& cur_node, B_Box*& max_J){
 				max_d = d;
 				result.first = i;
 				result.second = j;
+				cout << "i: " << i << ", j: " << j << endl;
 				max_J = J;
 			}
 		}
@@ -106,7 +135,7 @@ void RTree::QuadraticSplit(RNode*& cur_node){
 	child1->objects.push_back(cur_node->objects.at(i)); //pushing to first child
 	child2->objects.push_back(cur_node->objects.at(j)); //pushing to second child
 	cur_node->objects.erase(cur_node->objects.begin() + i); //erasing from original node
-	cur_node->objects.erase(cur_node->objects.begin() + j); //erasing from original node	
+	cur_node->objects.erase(cur_node->objects.begin() + j-1); //erasing from original node	
 	
 	child1->adjust_rectangle();
 	child2->adjust_rectangle();
@@ -137,12 +166,12 @@ void RTree::QuadraticSplit(RNode*& cur_node){
 		pick_next = PickNext(cur_node, child1, child2, group);
 		if (group){
 			child1->objects.push_back(cur_node->objects.at(pick_next));
+			//cur_node->objects.erase(cur_node->objects.begin() + pick_next);
 		} else {
 			child2->objects.push_back(cur_node->objects.at(pick_next));
+			//cur_node->objects.erase(cur_node->objects.begin() + pick_next);
 		}
 		cur_node->objects.erase(cur_node->objects.begin() + pick_next);
-		cout << "One pick next done\n";
-		//int k; cin >> k;
 	}
 	
 	cur_node->objects.clear();
@@ -150,6 +179,9 @@ void RTree::QuadraticSplit(RNode*& cur_node){
 	cout << "cur_node size " << cur_node->objects.size() << endl;
 	cout << "child 1 size " << child1->objects.size() << endl;
 	cout << "child 2 size " << child2->objects.size() << endl;
+	
+	child1->print_points();
+	child2->print_points();
 	
 	child1->adjust_rectangle();
 	child2->adjust_rectangle();
@@ -189,8 +221,8 @@ void RTree::QuadraticSplit(RNode*& cur_node){
 	
 	cur_node->objects.push_back(J);
 	
-	cout << "Father's top left: " << cur_node->objects.at(0)->top_left.x << ' ' << cur_node->objects.at(0)->top_left.y << endl;
-	cout << "Father's bottom right: " << cur_node->objects.at(0)->bottom_right.x << ' ' << cur_node->objects.at(0)->bottom_right.y << endl;
+	/*cout << "Father's top left: " << cur_node->objects.at(0)->top_left.x << ' ' << cur_node->objects.at(0)->top_left.y << endl;
+	cout << "Father's bottom right: " << cur_node->objects.at(0)->bottom_right.x << ' ' << cur_node->objects.at(0)->bottom_right.y << endl;*/
 	
 	if (cur_node == root){
 		cout << "Root updated\n";
@@ -202,6 +234,7 @@ void RTree::QuadraticSplit(RNode*& cur_node){
 
 bool RTree::insert(B_Box* elem){
 	RNode* temp;
+	temp = this->root;
 	choose_leaf(temp, elem);
 	cout << "Element inserted\n";
 	
@@ -213,6 +246,9 @@ bool RTree::insert(B_Box* elem){
 	}
 	
 	cout << "Splitting\n";
+	cout << "Points before the split: ";
+	temp->print_points();
+	//int n; cin >> n;
 	QuadraticSplit(temp);
 	return 1;
 }
@@ -228,20 +264,14 @@ void RTree::draw_visits(RNode* cur_node, int alt){
 	} else {
 		glColor3d(0,255,0);
 	}
-	for(int i = 0; i < cur_node->objects.size(); i++){
-		if (root->pointers.size() >= 2 && cur_node == root->pointers.at(0)){
-			cout << "child1 size: " << cur_node->objects.size() << endl;
-			cout << cur_node->objects.at(i)->top_left.x << ' ' << cur_node->objects.at(i)->top_left.y << endl;
-		}
-		if (root->pointers.size() >= 2 && cur_node == root->pointers.at(1)){
-			cout << "child2 size: " << cur_node->objects.size() << endl;
-			cout << cur_node->objects.at(i)->top_left.x << ' ' << cur_node->objects.at(i)->top_left.y << endl;
-		}
+	for(int i = 0; i < cur_node->objects.size(); i++){		
 		glRectf( (float)cur_node->objects.at(i)->top_left.x, (float)cur_node->objects.at(i)->top_left.y,
 			(float)cur_node->objects.at(i)->bottom_right.x, (float)cur_node->objects.at(i)->bottom_right.y );		
 	}
+	alt++;
+	alt = alt%2;
 	for(int i = 0; i < cur_node->pointers.size(); i++){
-		draw_visits(cur_node->pointers.at(i), (alt + 1));
+		draw_visits(cur_node->pointers.at(i), alt);
 	}
 }
 
