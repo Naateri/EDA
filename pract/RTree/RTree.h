@@ -38,6 +38,12 @@ struct B_Box{ //bounding box
 		cout << "top left: "; top_left.print();
 		cout << "bot right: "; bottom_right.print();
 	}
+	void grow(int s){
+		top_left.x -= s;
+		top_left.y += s;
+		bottom_right.x += s;
+		bottom_right.y -= s;
+	}
 };
 
 

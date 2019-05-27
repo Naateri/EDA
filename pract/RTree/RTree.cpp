@@ -40,14 +40,15 @@ void RTree::choose_leaf(RNode*& N, B_Box* elem){
 	choose_leaf(N, elem);
 }
 
-pair<int, int> RTree::PickSeeds(RNode*& cur_node, B_Box*& max_J){
+pair<int, int> RTree::PickSeeds(RNode*& cur_node, B_Box*& max_J){ //BIEN
 	//returns index of selected pair
 	double d, max_d;
 	max_d = -9999999;
+	//max_d = 9999999;
 	pair<int, int> result;
 	B_Box* J = new B_Box;
 	//B_Box J; //ver cual top left es mas top left, mismo con bottom right
-	for (int i = 0; i < cur_node->objects.size()-1; i++){
+	for (int i = 0; i < cur_node->objects.size(); i++){
 		for (int j = i+1; j < cur_node->objects.size(); j++){
 			//i,j current pair
 			//top left
@@ -68,17 +69,19 @@ pair<int, int> RTree::PickSeeds(RNode*& cur_node, B_Box*& max_J){
 				J->bottom_right.y = cur_node->objects.at(i)->bottom_right.y;
 			else
 				J->bottom_right.y = cur_node->objects.at(j)->bottom_right.y;
+			//J->grow(5);
 			d = J->area() - cur_node->objects.at(i)->area() - cur_node->objects.at(j)->area();
 			if (d > max_d){
 				max_d = d;
 				result.first = i;
 				result.second = j;
 				cout << "i: " << i << ", j: " << j << endl;
+				cout << "d: " << d << endl;
 				max_J = J;
 			}
 		}
-		return result;
 	}
+	return result;
 }
 
 int RTree::PickNext(RNode*& cur_node, RNode* child1, RNode* child2, bool& group){ //returns index of next node
@@ -88,17 +91,21 @@ int RTree::PickNext(RNode*& cur_node, RNode* child1, RNode* child2, bool& group)
 	int res;
 	B_Box J;
 	for(int i = 0; i < cur_node->objects.size(); i++){
+		d1 = child1->covering_rectangle.area();
 		child1->objects.push_back(cur_node->objects.at(i));
 		child1->adjust_rectangle();
-		d1 = child1->covering_rectangle.area();
+		d1 = d1 - child1->covering_rectangle.area();
 		child1->objects.erase(child1->objects.end() - 1); //erasing object inserted
 		child1->adjust_rectangle();
 		
+		d2 = child2->covering_rectangle.area();
 		child2->objects.push_back(cur_node->objects.at(i));
 		child2->adjust_rectangle();
-		d2 = child2->covering_rectangle.area();
+		d2 = d2 - child2->covering_rectangle.area();
 		child2->objects.erase(child2->objects.end() - 1); //erasing object inserted
 		child2->adjust_rectangle();
+		
+		cout << "picknext d1 " << d1 << ", d2 " << d2 << endl;
 		
 		if (d2 > d1){
 			dif_d = d2-d1;
@@ -123,9 +130,10 @@ void RTree::QuadraticSplit(RNode*& cur_node){
 	int i, j, pick_next;
 	bool group;
 	RNode* child1, *child2;
-	B_Box* J = new B_Box;
+	B_Box* J;// = new B_Box;
 	pair<int, int> pick_seeds = PickSeeds(cur_node, J);
 	i = pick_seeds.first; j = pick_seeds.second;
+	B_Box* j_node = cur_node->objects.at(j);
 	
 	cout << "PickSeeds Done\n";
 	
@@ -135,7 +143,13 @@ void RTree::QuadraticSplit(RNode*& cur_node){
 	child1->objects.push_back(cur_node->objects.at(i)); //pushing to first child
 	child2->objects.push_back(cur_node->objects.at(j)); //pushing to second child
 	cur_node->objects.erase(cur_node->objects.begin() + i); //erasing from original node
-	cur_node->objects.erase(cur_node->objects.begin() + j-1); //erasing from original node	
+	j = 0;
+	while(true){
+		if (cur_node->objects.at(j) == j_node) break;
+		j++;
+	}
+	cout << "erasing new j: " << j << endl;
+	cur_node->objects.erase(cur_node->objects.begin() + j); //erasing from original node	
 	
 	child1->adjust_rectangle();
 	child2->adjust_rectangle();
