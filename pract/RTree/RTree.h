@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <vector>
+#include <list>
 #include <utility>
 #include <GL/glut.h>
 #include <iostream>
@@ -51,6 +52,7 @@ struct RNode{
 	B_Box covering_rectangle;
 	vector<B_Box*> objects;	
 	vector<RNode*> pointers;
+	RNode* parent = 0;
 	/*RNode(){;}
 	RNode(int m){
 		//objects.resize(m);
@@ -60,7 +62,7 @@ struct RNode{
 	void adjust_rectangle(){
 		int min_tl_x, max_tl_y, max_br_x, min_br_y;
 		min_tl_x = min_br_y = 2147483647;
-		max_tl_y = max_br_x = 0;
+		max_tl_y = max_br_x = -2147483646;
 		for(int i = 0; i < objects.size(); i++){
 			if (objects.at(i)->top_left.x < min_tl_x) min_tl_x = objects.at(i)->top_left.x;
 			if (objects.at(i)->top_left.y > max_tl_y) max_tl_y = objects.at(i)->top_left.y;
@@ -84,12 +86,15 @@ struct RNode{
 class RTree{
 private:
 	RNode* root;
+	bool root_split;
+	list<RNode*> path; //idea
 	int m;
 	void draw_visits(RNode* cur_node, int alt);
 	void choose_leaf(RNode*& N, B_Box* elem);
+	void adjust_tree(RNode*& L, RNode* LL);
 	pair<int, int> PickSeeds(RNode*& cur_node, B_Box*& max_J); //returns index of pair
 	int PickNext(RNode*& cur_node, RNode* child1, RNode* child2, bool& group); //returns index of next node
-	void QuadraticSplit(RNode*& cur_node);
+	pair<RNode*, RNode*> QuadraticSplit(RNode*& cur_node);
 public:
 	RTree(int m);
 	bool find(B_Box elem);

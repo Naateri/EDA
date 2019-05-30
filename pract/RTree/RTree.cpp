@@ -1,6 +1,8 @@
 #include <iostream>
 #include "RTree.h"
 
+#define is_not !=
+
 RTree::RTree(int m){
 	this->m = m;
 	this->root = new RNode;
@@ -126,10 +128,37 @@ int RTree::PickNext(RNode*& cur_node, RNode* child1, RNode* child2, bool& group)
 	return res;
 }
 
-void RTree::QuadraticSplit(RNode*& cur_node){
+void RTree::adjust_tree(RNode*& L, RNode* LL){
+	RNode* N = L, *NN = LL; //AT1
+	//AT2
+	while (N != this->root){ //if n is the root, stop
+		//AT3
+		RNode* P = N->parent, *temp;
+		N->adjust_rectangle();
+		//AT4
+		RNode* PP = 0;
+		if (NN is_not NULL){
+			pair<RNode*, RNode*> split_result;
+			P->pointers.push_back(NN);
+			P->objects.push_back(&NN->covering_rectangle);
+			if (P->objects.size() > m){
+				split_result = QuadraticSplit(P);
+				P = split_result.first;
+				PP = split_result.second;
+			}
+		}
+		//AT 5
+		N = P; 
+		NN == PP;
+	}
+	
+}
+
+pair<RNode*, RNode*> RTree::QuadraticSplit(RNode*& cur_node){
 	int i, j, pick_next;
 	bool group;
 	RNode* child1, *child2;
+	pair<RNode*, RNode*> res;
 	B_Box* J;// = new B_Box;
 	pair<int, int> pick_seeds = PickSeeds(cur_node, J);
 	i = pick_seeds.first; j = pick_seeds.second;
@@ -139,6 +168,9 @@ void RTree::QuadraticSplit(RNode*& cur_node){
 	
 	child1 = new RNode;
 	child2 = new RNode;
+	
+	//setting parent
+	child1->parent = child2->parent = cur_node;
 	
 	child1->objects.push_back(cur_node->objects.at(i)); //pushing to first child
 	child2->objects.push_back(cur_node->objects.at(j)); //pushing to second child
@@ -190,34 +222,11 @@ void RTree::QuadraticSplit(RNode*& cur_node){
 	
 	cur_node->objects.clear();
 	
-	cout << "cur_node size " << cur_node->objects.size() << endl;
-	cout << "child 1 size " << child1->objects.size() << endl;
-	cout << "child 2 size " << child2->objects.size() << endl;
+	/*child1->adjust_rectangle();
+	child2->adjust_rectangle();*/
 	
-	child1->print_points();
-	child2->print_points();
-	
-	child1->adjust_rectangle();
-	child2->adjust_rectangle();
-	
-	cur_node->pointers.push_back(child1);
+	/*cur_node->pointers.push_back(child1);
 	cur_node->pointers.push_back(child2);
-	
-	/*if (child1->covering_rectangle.top_left.x < child2->covering_rectangle.top_left.x)
-		J->top_left.x = child1->covering_rectangle.top_left.x;
-	else J->top_left.x = child2->covering_rectangle.top_left.x;
-	
-	if (child1->covering_rectangle.top_left.y > child2->covering_rectangle.top_left.y)
-		J->top_left.y = child1->covering_rectangle.top_left.y;
-	else J->top_left.y = child2->covering_rectangle.top_left.y;
-
-	if (child1->covering_rectangle.bottom_right.x > child2->covering_rectangle.bottom_right.x)
-		J->bottom_right.x = child1->covering_rectangle.bottom_right.x;
-	else J->bottom_right.x = child2->covering_rectangle.bottom_right.x;
-	
-	if (child1->covering_rectangle.bottom_right.y < child2->covering_rectangle.bottom_right.y)
-		J->bottom_right.y = child1->covering_rectangle.bottom_right.y;
-	else J->bottom_right.y = child2->covering_rectangle.bottom_right.y; */
 	
 	J->top_left.x = child1->covering_rectangle.top_left.x - 10;
 	J->top_left.y = child1->covering_rectangle.top_left.y + 10;
@@ -233,37 +242,64 @@ void RTree::QuadraticSplit(RNode*& cur_node){
 	J->bottom_right.x = child2->covering_rectangle.bottom_right.x + 5;
 	J->bottom_right.y = child2->covering_rectangle.bottom_right.y - 5;
 	
-	cur_node->objects.push_back(J);
-	
-	/*cout << "Father's top left: " << cur_node->objects.at(0)->top_left.x << ' ' << cur_node->objects.at(0)->top_left.y << endl;
-	cout << "Father's bottom right: " << cur_node->objects.at(0)->bottom_right.x << ' ' << cur_node->objects.at(0)->bottom_right.y << endl;*/
+	cur_node->objects.push_back(J);*/
 	
 	if (cur_node == root){
 		cout << "Root updated\n";
-		/*cout << "Root's top left: " << root->objects.at(0)->top_left.x << ' ' << root->objects.at(0)->top_left.y << endl;
-		cout << "Root's bottom right: " << root->objects.at(0)->bottom_right.x << ' ' << root->objects.at(0)->bottom_right.y << endl;*/
+		child1->adjust_rectangle();
+		child2->adjust_rectangle();
+		
+		cur_node->pointers.push_back(child1);
+		cur_node->pointers.push_back(child2);
+		
+		J = new B_Box;
+		
+		J->top_left.x = child1->covering_rectangle.top_left.x - 10;
+		J->top_left.y = child1->covering_rectangle.top_left.y + 10;
+		J->bottom_right.x = child1->covering_rectangle.bottom_right.x + 10;
+		J->bottom_right.y = child1->covering_rectangle.bottom_right.y - 10;
+		
+		cur_node->objects.push_back(J);
+		//cur_node->objects.push_back(&child1->covering_rectangle);
+		//cur_node->objects.push_back(&child2->covering_rectangle);
+		J = new B_Box;
+		J->top_left.x = child2->covering_rectangle.top_left.x - 5;
+		J->top_left.y = child2->covering_rectangle.top_left.y + 5;
+		J->bottom_right.x = child2->covering_rectangle.bottom_right.x + 5;
+		J->bottom_right.y = child2->covering_rectangle.bottom_right.y - 5;
+		
+		cur_node->objects.push_back(J);
+		root_split = 1;
 	}
+	res.first = child1;
+	res.second = child2;
 	cout << "QuadraticSplit over\n";
+	return res;
 }
 
 bool RTree::insert(B_Box* elem){
 	RNode* temp;
 	temp = this->root;
+	root_split = 0;
 	choose_leaf(temp, elem);
 	cout << "Element inserted\n";
 	
 	temp->objects.push_back(elem);
 	temp->adjust_rectangle();
 	if (temp->objects.size() <= m) {
-		cout << "Size in current leaf: " << temp->objects.size() << endl;		
+		cout << "Size in current leaf: " << temp->objects.size() << endl;
+		adjust_tree(temp, 0);
 		return 1;
 	}
 	
 	cout << "Splitting\n";
 	cout << "Points before the split: ";
 	temp->print_points();
+	pair<RNode*, RNode*> split_result;
 	//int n; cin >> n;
-	QuadraticSplit(temp);
+	split_result = QuadraticSplit(temp);
+	if (root_split) return 1;
+	adjust_tree(split_result.first, split_result.second); 
 	return 1;
 }
 
@@ -275,15 +311,17 @@ void RTree::draw_visits(RNode* cur_node, int alt){
 	}*/
 	if (alt == 0) {
 		glColor3d(255,0,0);
-	} else {
+	} else if (alt == 1) {
 		glColor3d(0,255,0);
+	} else {
+		glColor3d(0,0,255);
 	}
 	for(int i = 0; i < cur_node->objects.size(); i++){		
 		glRectf( (float)cur_node->objects.at(i)->top_left.x, (float)cur_node->objects.at(i)->top_left.y,
 			(float)cur_node->objects.at(i)->bottom_right.x, (float)cur_node->objects.at(i)->bottom_right.y );		
 	}
 	alt++;
-	alt = alt%2;
+	alt = alt%3;
 	for(int i = 0; i < cur_node->pointers.size(); i++){
 		draw_visits(cur_node->pointers.at(i), alt);
 	}
