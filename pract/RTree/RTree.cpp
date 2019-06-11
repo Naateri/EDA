@@ -222,30 +222,9 @@ pair<RNode*, RNode*> RTree::QuadraticSplit(RNode*& cur_node){
 	
 	cur_node->objects.clear();
 	
-	/*child1->adjust_rectangle();
-	child2->adjust_rectangle();*/
-	
-	/*cur_node->pointers.push_back(child1);
-	cur_node->pointers.push_back(child2);
-	
-	J->top_left.x = child1->covering_rectangle.top_left.x - 10;
-	J->top_left.y = child1->covering_rectangle.top_left.y + 10;
-	J->bottom_right.x = child1->covering_rectangle.bottom_right.x + 10;
-	J->bottom_right.y = child1->covering_rectangle.bottom_right.y - 10;
-	
-	cur_node->objects.push_back(J);
-	//cur_node->objects.push_back(&child1->covering_rectangle);
-	//cur_node->objects.push_back(&child2->covering_rectangle);
-	J = new B_Box;
-	J->top_left.x = child2->covering_rectangle.top_left.x - 5;
-	J->top_left.y = child2->covering_rectangle.top_left.y + 5;
-	J->bottom_right.x = child2->covering_rectangle.bottom_right.x + 5;
-	J->bottom_right.y = child2->covering_rectangle.bottom_right.y - 5;
-	
-	cur_node->objects.push_back(J);*/
-	
 	if (cur_node == root){
 		cout << "Root updated\n";
+	}
 		child1->adjust_rectangle();
 		child2->adjust_rectangle();
 		
@@ -270,7 +249,7 @@ pair<RNode*, RNode*> RTree::QuadraticSplit(RNode*& cur_node){
 		
 		cur_node->objects.push_back(J);
 		root_split = 1;
-	}
+	//}
 	res.first = child1;
 	res.second = child2;
 	cout << "QuadraticSplit over\n";

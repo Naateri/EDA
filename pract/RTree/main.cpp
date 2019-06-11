@@ -127,8 +127,6 @@ GLvoid window_redraw(GLsizei width, GLsizei height) {
 	glViewport(0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	
-	
 }
 
 GLvoid window_key(unsigned char key, int x, int y) {
