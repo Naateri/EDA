@@ -69,10 +69,10 @@ struct RNode{
 			if (objects.at(i)->bottom_right.x > max_br_x) max_br_x = objects.at(i)->bottom_right.x;
 			if (objects.at(i)->bottom_right.y < min_br_y) min_br_y = objects.at(i)->bottom_right.y;
 		}
-		covering_rectangle.top_left.x = min_tl_x;
-		covering_rectangle.top_left.y = max_tl_y;
-		covering_rectangle.bottom_right.x = max_br_x;
-		covering_rectangle.bottom_right.y = min_br_y;
+		covering_rectangle.top_left.x = min_tl_x - 10;
+		covering_rectangle.top_left.y = max_tl_y + 10;
+		covering_rectangle.bottom_right.x = max_br_x + 10;
+		covering_rectangle.bottom_right.y = min_br_y - 10;
 	}
 	
 	void print_points(){
