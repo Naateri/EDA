@@ -10,20 +10,24 @@ RTree::RTree(int m){
 
 void RTree::choose_leaf(RNode*& N, B_Box* elem){
 	//CL2
-	//if (N->pointers.size() == 0) return; //N is a leaf
+	if (N->pointers.size() == 0){ //N is a leaf
+		return;
+	}
 	cout << "Going to a leaf\n";
-	while (N->pointers.size() > 0){
+	//while (N->pointers.size() > 0){
 	//CL3
 	
 	B_Box* cur_bbox = new B_Box;
 	int pos;
 	double cur_area, enlargement, min_enlargement = 999999;
 	for(int i = 0; i < N->objects.size(); i++){
+		N->adjust_rectangle();
 		*cur_bbox = N->covering_rectangle;
 		N->objects.push_back(elem);
 		N->adjust_rectangle();
 		
-		enlargement = cur_bbox->area() - N->covering_rectangle.area();
+		//enlargement = cur_bbox->area() - N->covering_rectangle.area();
+		enlargement = abs(cur_bbox->area() - N->covering_rectangle.area());
 		if (enlargement < 0) enlargement *= -1;
 		if (enlargement == min_enlargement){
 			if (cur_bbox->area() < cur_area){ //resolve ties
@@ -46,9 +50,9 @@ void RTree::choose_leaf(RNode*& N, B_Box* elem){
 	//CL4
 	
 	N = N->pointers.at(pos);
-	
-	}
-	//choose_leaf(N, elem);
+	cout << "leaf chosen so far: " << pos << endl;
+	//}
+	choose_leaf(N, elem);
 }
 
 pair<int, int> RTree::PickSeeds(RNode*& cur_node, B_Box*& max_J){ //BIEN
@@ -178,8 +182,18 @@ pair<RNode*, RNode*> RTree::QuadraticSplit(RNode*& cur_node){
 	child1 = new RNode;
 	child2 = new RNode;
 	
+	RNode* cur_node_p = cur_node->parent;	
+	//setting parent
+	//child1->parent = child2->parent = cur_node;	
+	
 	child1->objects.push_back(cur_node->objects.at(i)); //pushing to first child
 	child2->objects.push_back(cur_node->objects.at(j)); //pushing to second child
+	if (cur_node->pointers.size() > 0){
+		child1->pointers.push_back(cur_node->pointers.at(i));
+		child2->pointers.push_back(cur_node->pointers.at(j));
+		
+		cur_node->pointers.erase(cur_node->pointers.begin() + i); //erasing ptr from original node
+	}
 	cur_node->objects.erase(cur_node->objects.begin() + i); //erasing from original node
 	j = 0;
 	while(true){
@@ -189,28 +203,40 @@ pair<RNode*, RNode*> RTree::QuadraticSplit(RNode*& cur_node){
 	cout << "erasing new j: " << j << endl;
 	cur_node->objects.erase(cur_node->objects.begin() + j); //erasing from original node	
 	
+	if (cur_node->pointers.size() > 0){
+		cur_node->pointers.erase(cur_node->pointers.begin() + j); //erasing ptr from original node
+	}
+	
 	child1->adjust_rectangle();
 	child2->adjust_rectangle();
 	
 	int cur_size = cur_node->objects.size(); //to go through rest of nodes
-	cout << "Created two childs\n"; 
-	for(i = 0; i < cur_size; i++){
-		if (child1->objects.size() +  cur_size - i - 1 == this->m>>1){ 
+	
+	for(i = 0; i < cur_size; i++){ //for each node in the original node
+		if (child1->objects.size() + cur_size - i - 1 == this->m>>1){ 
 			//if all the other objects need to be pushed to child1 so that
 			//it has m/2 entries, push them all
 			for(vector<B_Box*>::iterator it = cur_node->objects.begin();
 				it != cur_node->objects.end(); it++){
 				child1->objects.push_back(*it);
 			}
+			for(vector<RNode*>::iterator it = cur_node->pointers.begin();
+				it != cur_node->pointers.end(); it++){
+				child1->pointers.push_back(*it);
+			}
 			break;
 		}
 		
-		if (child2->objects.size() +  cur_size - i - 1 == this->m>>1){
+		if (child2->objects.size() + cur_size - i - 1 == this->m>>1){
 			//if all the other objects need to be pushed to child2 so that
 			//it has m/2 entries, push them all
 			for(vector<B_Box*>::iterator it = cur_node->objects.begin();
 				it != cur_node->objects.end(); it++){
 				child2->objects.push_back(*it);
+			}
+			for(vector<RNode*>::iterator it = cur_node->pointers.begin();
+				it != cur_node->pointers.end(); it++){
+					child2->pointers.push_back(*it);
 			}
 			break;
 		}
@@ -218,55 +244,96 @@ pair<RNode*, RNode*> RTree::QuadraticSplit(RNode*& cur_node){
 		pick_next = PickNext(cur_node, child1, child2, group);
 		if (group){
 			child1->objects.push_back(cur_node->objects.at(pick_next));
-			//cur_node->objects.erase(cur_node->objects.begin() + pick_next);
+			
+			if (cur_node->pointers.size() > 0) child1->pointers.push_back(cur_node->pointers.at(pick_next));
+			
 		} else {
 			child2->objects.push_back(cur_node->objects.at(pick_next));
-			//cur_node->objects.erase(cur_node->objects.begin() + pick_next);
+			
+			if (cur_node->pointers.size() > 0) child2->pointers.push_back(cur_node->pointers.at(pick_next));
 		}
 		cur_node->objects.erase(cur_node->objects.begin() + pick_next);
+		if (cur_node->pointers.size() > 0) cur_node->pointers.erase(cur_node->pointers.begin() + pick_next);
 	}
 	
 	cur_node->objects.clear();
+	cur_node->pointers.clear();
 	
 	if (cur_node == root){
 		cout << "Root updated\n";
 		root_split = 1;
-	}
+		
+		child1->parent = root;
+		child2->parent = root;
+		
 		child1->adjust_rectangle();
 		child2->adjust_rectangle();
 		
-		cur_node->pointers.push_back(child1);
-		cur_node->pointers.push_back(child2);
+		root->pointers.push_back(child1);
+		root->pointers.push_back(child2);
 		
 		J = new B_Box;
 		
-		J->top_left.x = child1->covering_rectangle.top_left.x - 5;
-		J->top_left.y = child1->covering_rectangle.top_left.y + 5;
-		J->bottom_right.x = child1->covering_rectangle.bottom_right.x + 5;
-		J->bottom_right.y = child1->covering_rectangle.bottom_right.y - 5;
+		J->top_left.x = child1->covering_rectangle.top_left.x;// - 5;
+		J->top_left.y = child1->covering_rectangle.top_left.y;// + 5;
+		J->bottom_right.x = child1->covering_rectangle.bottom_right.x;// + 5;
+		J->bottom_right.y = child1->covering_rectangle.bottom_right.y;// - 5;
 		
-		cur_node->objects.push_back(J);
-		//cur_node->objects.push_back(&child1->covering_rectangle);
-		//cur_node->objects.push_back(&child2->covering_rectangle);
+		//cur_node->objects.push_back(J); //child1 info
+		root->objects.push_back(&child1->covering_rectangle);
+		root->objects.push_back(&child2->covering_rectangle);
+		
 		J = new B_Box;
-		J->top_left.x = child2->covering_rectangle.top_left.x - 5;
-		J->top_left.y = child2->covering_rectangle.top_left.y + 5;
-		J->bottom_right.x = child2->covering_rectangle.bottom_right.x + 5;
-		J->bottom_right.y = child2->covering_rectangle.bottom_right.y - 5;
+		J->top_left.x = child2->covering_rectangle.top_left.x;// - 5;
+		J->top_left.y = child2->covering_rectangle.top_left.y;// + 5;
+		J->bottom_right.x = child2->covering_rectangle.bottom_right.x;// + 5;
+		J->bottom_right.y = child2->covering_rectangle.bottom_right.y;// - 5;
 		
-		cur_node->objects.push_back(J);
-		root_split = 1;
-	//}
-	
-	RNode* cur_node_p = cur_node->parent;	
-	
-	//setting parent
-	child1->parent = child2->parent = cur_node;	
+		//cur_node->objects.push_back(J); //child2 info
+		root->adjust_rectangle();
+	}
 	
 	if (cur_node != root){
 		cout << "just one extra node\n";
-		child1 = cur_node;
+		//child1 = cur_node;
+		cur_node = child1;
 		child1->parent = cur_node_p;
+		child2->parent = cur_node_p;
+		//Comment below if stuff is not working
+		
+		child1->adjust_rectangle();
+		child2->adjust_rectangle(); 
+		
+		cur_node_p->pointers.push_back(child1);
+		cur_node_p->pointers.push_back(child2);
+		
+		J = new B_Box;
+		
+		J->top_left.x = child1->covering_rectangle.top_left.x;// - 5;
+		J->top_left.y = child1->covering_rectangle.top_left.y;// + 5;
+		J->bottom_right.x = child1->covering_rectangle.bottom_right.x;// + 5;
+		J->bottom_right.y = child1->covering_rectangle.bottom_right.y;// - 5;
+		
+		//cur_node_p->objects.push_back(J); //child1 info
+		cur_node_p->objects.push_back(&child1->covering_rectangle);
+		cur_node_p->objects.push_back(&child2->covering_rectangle);
+		
+		J = new B_Box;
+		J->top_left.x = child2->covering_rectangle.top_left.x; //-5;
+		J->top_left.y = child2->covering_rectangle.top_left.y; //+5;
+		J->bottom_right.x = child2->covering_rectangle.bottom_right.x; //+5;
+		J->bottom_right.y = child2->covering_rectangle.bottom_right.y; //-5;
+		
+		//cur_node_p->objects.push_back(J); 
+		
+		cur_node_p->adjust_rectangle();
+		
+		cout << "parent size: " << cur_node_p->objects.size() << endl;
+		
+		if (cur_node_p->objects.size() > m){
+			QuadraticSplit(cur_node_p);
+			//adjust_tree(child1, child2);
+		}
 	}
 	
 	res.first = child1;
@@ -283,10 +350,11 @@ bool RTree::insert(B_Box* elem){
 	cout << "Element inserted\n";
 	
 	temp->objects.push_back(elem);
-	temp->adjust_rectangle();
+	//temp->adjust_rectangle();
 	if (temp->objects.size() <= m) {
 		cout << "Size in current leaf: " << temp->objects.size() << endl;
-		adjust_tree(temp, 0);
+		//adjust_tree(temp, 0);
+		temp->adjust_rectangle();
 		return 1;
 	}
 	
@@ -297,7 +365,7 @@ bool RTree::insert(B_Box* elem){
 	//int n; cin >> n;
 	split_result = QuadraticSplit(temp);
 	if (root_split) return 1;
-	adjust_tree(split_result.first, split_result.second); 
+	//adjust_tree(split_result.first, split_result.second); 
 	return 1;
 }
 
@@ -317,6 +385,7 @@ void RTree::draw_visits(RNode* cur_node, int alt){
 					(float)cur_node->objects.at(i)->bottom_right.x, (float)cur_node->objects.at(i)->bottom_right.y );	
 		}*/
 	}
+	cur_node->adjust_rectangle();
 	//glColor3d(255,0,0);
 	for(int i = 0; i < cur_node->objects.size(); i++){		
 		glRectf( (float)cur_node->objects.at(i)->top_left.x, (float)cur_node->objects.at(i)->top_left.y,

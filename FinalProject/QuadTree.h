@@ -9,11 +9,11 @@
 using namespace std;
 
 struct Point2D{
-	int x, y;
+	double x, y;
 	Point2D(){
-		this->x = this->y = 0;
+		this->x = this->y = 0.0;
 	}
-	Point2D(int x, int y){
+	Point2D(double x, double y){
 		this-> x = x;
 		this->y = y;
 	}

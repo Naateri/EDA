@@ -3,15 +3,17 @@
 #include "RTree.h"
 #include <math.h>
 #include <vector>
+#include <cstdlib>
 #include<GL/glut.h>
 
 #define KEY_ESC 27
-#define KEYS 3
+#define KEYS 4
 
 using namespace std;
 
-std::vector<Point2D*> points;
-std::vector<B_Box*> rectangles;
+int rdtsc(){
+	__asm__ __volatile__("rdtsc");
+}
 
 //dibuja un simple gizmo
 void displayGizmo(){
@@ -25,12 +27,33 @@ void displayGizmo(){
 	glVertex2d(0, 300);*/
 	glEnd();
 }
+
+std::vector<Point2D*> points;
+std::vector<B_Box*> rectangles;
 bool r = false;
 int click = 0;
 B_Box *rect;
 RTree* rt = new RTree(KEYS);
 
 void draw_point(int x, int y);
+
+void gen_points(int pts){
+	srand(rdtsc());
+	int x, y;
+	//x = -300 + static_cast <int> (rand()) / (static_cast <int> (RAND_MAX/(600))); 
+	//y = -300 + static_cast <int> (rand()) / (static_cast <int> (RAND_MAX/(600))); 
+	for(int i = 0; i < pts; i++){
+		x = rand()%500;
+		y = rand()%500;
+		Point2D* pt;
+		pt = new Point2D(x-300,300-y);
+		points.push_back(pt);
+		points.push_back(pt);
+		rect = new B_Box(*(points.at(points.size() - 1)), *pt);
+		rectangles.push_back(rect);
+		rt->insert(rect);
+	}
+}
 
 void OnMouseClick(int button, int state, int x, int y){
 	Point2D* pt;
@@ -79,8 +102,9 @@ void glPaint(void) {
 	//dibujar quadTree (qt->draw())
 	glPointSize(3);
 	glBegin(GL_POINTS);
-	/*for(int i = 0; i < points.size(); i++)
-		glVertex2f((float)points.at(i)->x,(float)points.at(i)->y);*/
+	//uncomment for drawing points
+	for(int i = 0; i < points.size(); i++)
+		glVertex2f((float)points.at(i)->x,(float)points.at(i)->y);
 	
 	glMatrixMode( GL_MODELVIEW );
 	glLoadIdentity();	
@@ -144,6 +168,8 @@ GLvoid window_key(unsigned char key, int x, int y) {
 //el programa principal
 //
 int main(int argc, char** argv) {
+	
+	//gen_points(15);
 	
 	//Inicializacion de la GLUT
 	glutInit(&argc, argv);

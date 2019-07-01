@@ -31,9 +31,17 @@ struct B_Box{ //bounding box
 		top_left = Point2D(0,0);
 		bottom_right = Point2D(0,0);
 	}
-	B_Box(Point2D top_l, Point2D bot_r) : top_left(top_l), bottom_right(bot_r) {;};
+	B_Box(Point2D top_l, Point2D bot_r){
+		if (top_l.x < bot_r.x && top_l.y > bot_r.y){
+			this->top_left = top_l;
+			this->bottom_right = bot_r;
+		} else {
+			this->top_left = bot_r;
+			this->bottom_right = top_l;
+		}
+	}
 	double area(){
-		return ( (top_left.x - bottom_right.x) * (top_left.y - bottom_right.y) );
+		return abs( ( (bottom_right.x - top_left.x) * (top_left.y - bottom_right.y) ) );
 	}
 	void print(){
 		cout << "top left: "; top_left.print();
@@ -54,10 +62,6 @@ struct RNode{
 	vector<RNode*> pointers;
 	RNode* parent = 0;
 	/*RNode(){;}
-	RNode(int m){
-		//objects.resize(m);
-		//pointers.resize(0);
-		;
 	}*/
 	void adjust_rectangle(){
 		int min_tl_x, max_tl_y, max_br_x, min_br_y;
@@ -69,10 +73,10 @@ struct RNode{
 			if (objects.at(i)->bottom_right.x > max_br_x) max_br_x = objects.at(i)->bottom_right.x;
 			if (objects.at(i)->bottom_right.y < min_br_y) min_br_y = objects.at(i)->bottom_right.y;
 		}
-		covering_rectangle.top_left.x = min_tl_x - 10;
-		covering_rectangle.top_left.y = max_tl_y + 10;
-		covering_rectangle.bottom_right.x = max_br_x + 10;
-		covering_rectangle.bottom_right.y = min_br_y - 10;
+		covering_rectangle.top_left.x = min_tl_x - 5;
+		covering_rectangle.top_left.y = max_tl_y + 5;
+		covering_rectangle.bottom_right.x = max_br_x + 5;
+		covering_rectangle.bottom_right.y = min_br_y - 5;
 	}
 	
 	void print_points(){

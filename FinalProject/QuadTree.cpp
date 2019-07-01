@@ -1,7 +1,7 @@
 #include "QuadTree.h"
 
 QuadTree::QuadTree(){
-	B_Box ar(Point2D(-300,300), Point2D(300,-300));
+	B_Box ar(Point2D(-300.0,300.0), Point2D(300.0,-300.0));
 	this->area = ar;
 	this->zero = this->one = this->two = this->three = 0;
 	this->filled = 0;
@@ -10,7 +10,6 @@ QuadTree::QuadTree(){
 QuadTree::QuadTree(Point2D top_left, Point2D bottom_right){
 	B_Box ar(top_left, bottom_right);
 	this->area = ar;
-	cout << "Top left, x: " << area.top_left.x << ", y: " << area.top_left.y << endl;	
 	this->zero = this->one = this->two = this->three = 0;
 	this->filled = 0;
 }
@@ -27,7 +26,7 @@ bool QuadTree::insert(Point2D* pt){
 	}
 	if (points.size() < this->max_elements && !zero){
 		points.push_back(pt);
-		cout << "points.size(): " << points.size() << endl;
+		//cout << "points.size(): " << points.size() << endl;
 		return 1;
 	}
 	//filled = 1;
@@ -49,27 +48,23 @@ void QuadTree::subdivide(){
 	bottom_right.x = (area.top_left.x + area.bottom_right.x) / 2;
 	bottom_right.y = (area.top_left.y + area.bottom_right.y) / 2;
 	zero = new QuadTree(top_left, bottom_right);
-	cout << "zero->top_left: " << top_left.x << ", " << top_left.y << "; bottom_right: " << bottom_right.x << ", " << bottom_right.y << endl;
 	
 	top_left.x = (area.top_left.x + area.bottom_right.x)/2;
 	top_left.y = area.top_left.y;
 	bottom_right.x = area.bottom_right.x;
 	bottom_right.y = (area.top_left.y + area.bottom_right.y)/2;
 	one = new QuadTree(top_left, bottom_right);
-	cout << "one->top_left: " << top_left.x << ", " << top_left.y << "; bottom_right: " << bottom_right.x << ", " << bottom_right.y << endl;
 	
 	top_left.x = area.top_left.x;
 	top_left.y = (area.top_left.y + area.bottom_right.y) / 2;
 	bottom_right.x = (area.top_left.x + area.bottom_right.x) / 2;
 	bottom_right.y = area.bottom_right.y;
 	two = new QuadTree(top_left, bottom_right);
-	cout << "two->top_left: " << top_left.x << ", " << top_left.y << "; bottom_right: " << bottom_right.x << ", " << bottom_right.y << endl;
 	
 	top_left.x = (area.top_left.x + area.bottom_right.x)/2;
 	top_left.y = (area.top_left.y + area.bottom_right.y)/2;
 	bottom_right = area.bottom_right;
 	three = new QuadTree(top_left, bottom_right);
-	cout << "three->top_left: " << top_left.x << ", " << top_left.y << "; bottom_right: " << bottom_right.x << ", " << bottom_right.y << endl;
 	for(int i = 0; i < this->points.size(); i++){
 		zero->insert(points.at(i));
 		one->insert(points.at(i));
