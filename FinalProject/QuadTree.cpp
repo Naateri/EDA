@@ -1,7 +1,8 @@
 #include "QuadTree.h"
 
 QuadTree::QuadTree(){
-	B_Box ar(Point2D(-300.0,300.0), Point2D(300.0,-300.0));
+	//B_Box ar(Point2D(-300.0,300.0), Point2D(300.0,-300.0));
+	B_Box ar(Point2D(-90,90.0), Point2D(180.0,-180.0));
 	this->area = ar;
 	this->zero = this->one = this->two = this->three = 0;
 	this->filled = 0;
@@ -21,7 +22,7 @@ bool QuadTree::in_bbox(Point2D* pt){
 
 bool QuadTree::insert(Point2D* pt){
 	if (!in_bbox(pt)){
-		cout << "Out\n";
+		//cout << "Out\n";
 		return 0;
 	}
 	if (points.size() < this->max_elements && !zero){
@@ -77,7 +78,7 @@ void QuadTree::draw(){
 	if (!zero && !one && !two && ! three) return;
 	glBegin(GL_LINES);
 	glEnable(GL_PROGRAM_POINT_SIZE);
-	glColor3d(255,20,47);
+	//glColor3d(255,20,47);
 	glVertex2d(zero->area.top_left.x, zero->area.bottom_right.y);
 	//glVertex2d(one->area.bottom_right.x, one->area.bottom_right.y);
 	glVertex2d(three->area.bottom_right.x, three->area.top_left.y);

@@ -18,6 +18,7 @@ VA_File::VA_File(int dim){
 	bits_for_dimension.resize(dimensions);
 	marks.resize(dimensions);
 	int b = (sizeof(double) * this->dimensions) << 3;
+	//int b = (sizeof(double)) << 3;
 	for (int j = 1; j <= dimensions; j++){
 		this->bits_for_dimension[j-1] = floor(b/dim);
 		if (j <= (b % dim)) this->bits_for_dimension[j-1]++;
@@ -38,11 +39,11 @@ void VA_File::build(vector<PointND*> pts){
 	for(int i = 0; i < pts.size(); i++){
 		cur_point = pts[i];
 		for(int dim = 0; dim < dimensions; dim++){
-			if (cur_point->point[i] < min_dims[i]){
-				min_dims[i] = cur_point->point[i];
+			if (cur_point->point[dim] < min_dims[dim]){
+				min_dims[dim] = cur_point->point.at(dim);
 			}
-			if (cur_point->point[i] > max_dims[i]){
-				max_dims[i] = cur_point->point[i];
+			if (cur_point->point[dim] > max_dims[dim]){
+				max_dims[dim] = cur_point->point.at(dim);
 			}
 		}
 	}
@@ -77,7 +78,7 @@ void VA_File::build(vector<PointND*> pts){
 			cur_dim_approx = b.to_string(); //bits approximation at dimension j
 			approx = approx + cur_dim_approx.substr(cur_dim_approx.size() - bits, cur_dim_approx.size());
 		}
-		
+		//cout << approx << endl;
 		this->approximations[i] = approx;
 	}
 	//approximations found
@@ -122,13 +123,17 @@ double VA_File::candidate(double d, int i, int k){
 }
 
 void VA_File::simple_search(PointND* pt, int k){
-	int i;
 	double l_i, d;
 	dst.clear();
 	dst.resize(k);
+	knn_index.resize(k);
 	d = init_candidate(k);
 	for(int i = 0; i < approximations.size(); i++){
 		l_i = l_bound(approximations[i], pt);
 		if (l_i < d) d = candidate(distance(this->points[i], pt), i, k);
+	}
+	
+	for (int i = 0; i < k; i++){
+		knn_index[i] = dst[i].second;
 	}
 }
