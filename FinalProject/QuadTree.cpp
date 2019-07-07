@@ -2,7 +2,7 @@
 
 QuadTree::QuadTree(){
 	//B_Box ar(Point2D(-300.0,300.0), Point2D(300.0,-300.0));
-	B_Box ar(Point2D(-90,90.0), Point2D(180.0,-180.0));
+	B_Box ar(Point2D(-90.0,180.0), Point2D(90.0,-180.0));
 	this->area = ar;
 	this->zero = this->one = this->two = this->three = 0;
 	this->filled = 0;
@@ -72,6 +72,7 @@ void QuadTree::subdivide(){
 		two->insert(points.at(i));
 		three->insert(points.at(i));
 	}
+	points.clear();
 }
 
 void QuadTree::draw(){

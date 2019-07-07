@@ -30,7 +30,7 @@ struct B_Box{ //bounding box
 
 class QuadTree{
 private:
-	const int max_elements = 4;
+	const int max_elements = 10;
 	bool filled = 0;
 	QuadTree* zero, *one, *two, *three;
 	//00: NW, 01: NE, 10: SW, 11: SE

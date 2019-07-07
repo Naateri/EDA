@@ -2,10 +2,10 @@ from random import uniform
 import csv
 
 #modify this as you like
-dimensions = 10
+dimensions = 75
 min_number = -1000
 max_number = 1000
-total_data = 100
+total_data = 1000000
 
 file_name = "dataset_d" + str(dimensions) + "pts" + str(total_data) + ".csv"
 

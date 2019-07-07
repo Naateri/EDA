@@ -40,6 +40,7 @@ public:
 	VA_File(int dim);
 	void build(vector<PointND*> pts);
 	void simple_search(PointND* pt, int k);
+	void optimal_search(PointND* pt, int k);
 };
 
 #endif

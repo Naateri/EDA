@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include <stdlib.h>
+#include <ctime>
 using namespace std;
 
 #define KEY_ESC 27
@@ -13,6 +14,8 @@ QuadTree* qt;
 VA_File* va_file;
 vector<Point2D*> points;
 vector<PointND*> full_data_pts;
+
+vector<int> k_s = {5, 10, 100, 500, 1000, 5000};
 
 void displayGizmo(){
 	glBegin(GL_LINES);
@@ -35,9 +38,9 @@ void OnMouseClick(int button, int state, int x, int y){
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN){
 		//convertir x,y
 		//insertar un nuevo punto en el quadtree
-		std::cout << x-300 << " " << 300-y << std::endl;
+		std::cout << x-90 << " " << 180-y << std::endl;
 		//draw_point(x,y);	
-		pt = new Point2D(x-300,300-y);
+		pt = new Point2D(x-90,180-y);
 		qt->insert(pt);
 		points.push_back(pt);
 	}else if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN){
@@ -64,19 +67,23 @@ void glPaint(void) {
 	//El fondo de la escena al color initial
 	glClear(GL_COLOR_BUFFER_BIT); //CAMBIO
 	glLoadIdentity();
-	glOrtho(-90.0f,  90.0f,-180.0f, 80.0f, -1.0f, 1.0f);
+	glOrtho(-90.0f, 90.0f, -180.0f, 180.0f, -1.0f, 1.0f);
 	
 	//dibujar quadTree (qt->draw())
 	glPointSize(3);
 	glBegin(GL_POINTS);
 	for(int i = 0; i < points.size(); i++)
-		glVertex2f((float)points.at(i)->x,(float)points.at(i)->y );
+		glVertex2f((float)points.at(i)->x,(float)points.at(i)->y);
 	
 	glColor3d(255, 0, 0);
 	
-	for(int i = 0; i < va_file->knn_index.size(); i++){
+	for(int i = 0; i < va_file->knn_index.size(); i++){ //knn points
 		glVertex2f((float)points.at(va_file->knn_index[i])->x,(float)points.at(va_file->knn_index[i])->y );
 	}
+	
+	glColor3d(0, 255, 0);
+	
+	glVertex2f((float)points.at(6)->x,(float)points.at(6)->y); //point to query
 	
 	glColor3d(0, 0, 255);
 	
@@ -150,8 +157,10 @@ void insert_points(string file, int dim){
 				if (num[i] == ','){
 					if (cur_dim == 0){
 						geo->x = atof(real_num.c_str());
+						//cout << "x: " << geo->x << endl;
 					} else if (cur_dim == 1){
 						geo->y = atof(real_num.c_str());
+						//cout << "y: " << geo->y << endl;
 					}
 					//filling on the data point
 					data->point[cur_dim] = atof(real_num.c_str());
@@ -161,6 +170,13 @@ void insert_points(string file, int dim){
 				}
 				real_num = real_num + num[i];
 			}
+			//last iter
+			if (cur_dim == 1){
+				geo->y = atof(real_num.c_str());
+				//cout << "y: " << geo->y << endl;
+			}
+			//filling on the data point
+			data->point[cur_dim] = atof(real_num.c_str());
 			points.push_back(geo);
 			qt->insert(geo);
 			full_data_pts.push_back(data);
@@ -181,7 +197,7 @@ int main (int argc, char *argv[]) {
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 	glutInitWindowSize(600, 600); //tamaño de la ventana
 	glutInitWindowPosition(100, 100); //posicion de la ventana
-	glutCreateWindow("QuadTree"); //titulo de la ventana
+	glutCreateWindow("Geographical Data"); //titulo de la ventana
 	
 	init_GL(); //funcion de inicializacion de OpenGL
 	
@@ -193,14 +209,32 @@ int main (int argc, char *argv[]) {
 	glutMotionFunc(&OnMouseMotion);
 	glutIdleFunc(&idle);
 	
+	int dimensions = 100;
 	
 	qt = new QuadTree();
-	va_file = new VA_File(10);
+	va_file = new VA_File(dimensions);
 	
-	insert_points("dataset_d10pts100.csv", 10);
+	//insert_points("dataset_d10pts100.csv", 10);
+	//insert_points("dataset_d2pts100.csv", 2);
+	clock_t begin = clock();
+	insert_points("dataset_d100pts1000000.csv", dimensions);
+	clock_t end = clock();
+	
+	double elapsed_secs = double(end-begin) / CLOCKS_PER_SEC;
+	
 	cout << "dataset built\n";
+	cout << "Built in " << elapsed_secs << " seconds\n";
 	
-	va_file->simple_search(full_data_pts.at(6), 3); //test search
+	for(int i = 0; i < k_s.size(); i++){
+		clock_t begin2 = clock();
+		//va_file->simple_search(full_data_pts.at(6), 40000); //test search
+		va_file->simple_search(full_data_pts.at(6), k_s.at(i)); //test search
+		clock_t end2 = clock();
+		elapsed_secs = double(end2-begin2) / CLOCKS_PER_SEC;
+	
+		cout << "knn found in " << elapsed_secs << " seconds\n";
+	}
+	
 	glutMainLoop(); //bucle de rendering
 	//no escribir nada abajo de mainloop
 	return 0;

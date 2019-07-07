@@ -10,21 +10,28 @@ double distance(PointND* a, PointND* b){
 	return sqrt(result);
 }
 
-
-
 VA_File::VA_File(int dim){
 	this->dimensions = dim;
-	//this->bits_for_dimension = new int[dimensions];
+	int b;
 	bits_for_dimension.resize(dimensions);
 	marks.resize(dimensions);
-	int b = (sizeof(double) * this->dimensions) << 3;
-	//int b = (sizeof(double)) << 3;
+	/*if (dim < 10){
+		b = sizeof(double);
+	} else if (dim < 30) {
+		b = sizeof(double) << 3;
+	} else {
+		b = sizeof(double) * dimensions;
+	}*/
+	b = sizeof(double) * dimensions;
+	//int b = (sizeof(double) * this->dimensions) << 3;
 	for (int j = 1; j <= dimensions; j++){
 		this->bits_for_dimension[j-1] = floor(b/dim);
 		if (j <= (b % dim)) this->bits_for_dimension[j-1]++;
 		
 		marks[j-1].resize( (1 << bits_for_dimension[j-1]) + 1);
+		//cout << "bits in dimension " << j << ": " << bits_for_dimension[j-1] << endl;
 	}
+	//int q; cin >> q;
 }
 
 void VA_File::build(vector<PointND*> pts){
@@ -72,9 +79,9 @@ void VA_File::build(vector<PointND*> pts){
 			bits = this->bits_for_dimension[j];
 			cur_cell = 0;
 			while (this->marks[j][cur_cell++] < pts[i]->point[j]){
-				;
+				;//finding the right place
 			}
-			bitset<64> b(cur_cell);
+			bitset<64> b(cur_cell-1);
 			cur_dim_approx = b.to_string(); //bits approximation at dimension j
 			approx = approx + cur_dim_approx.substr(cur_dim_approx.size() - bits, cur_dim_approx.size());
 		}
@@ -130,10 +137,16 @@ void VA_File::simple_search(PointND* pt, int k){
 	d = init_candidate(k);
 	for(int i = 0; i < approximations.size(); i++){
 		l_i = l_bound(approximations[i], pt);
+		if (this->points[i] == pt) continue;
 		if (l_i < d) d = candidate(distance(this->points[i], pt), i, k);
 	}
 	
 	for (int i = 0; i < k; i++){
 		knn_index[i] = dst[i].second;
 	}
+}
+
+void VA_File::optimal_search(PointND* pt, int k){
+	int i;
+	double d, l_i, u_i;
 }
