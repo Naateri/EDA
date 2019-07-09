@@ -15,13 +15,6 @@ VA_File::VA_File(int dim){
 	int b;
 	bits_for_dimension.resize(dimensions);
 	marks.resize(dimensions);
-	/*if (dim < 10){
-		b = sizeof(double);
-	} else if (dim < 30) {
-		b = sizeof(double) << 3;
-	} else {
-		b = sizeof(double) * dimensions;
-	}*/
 	b = sizeof(double) * dimensions;
 	//int b = (sizeof(double) * this->dimensions) << 3;
 	for (int j = 1; j <= dimensions; j++){
@@ -85,7 +78,6 @@ void VA_File::build(vector<PointND*> pts){
 			cur_dim_approx = b.to_string(); //bits approximation at dimension j
 			approx = approx + cur_dim_approx.substr(cur_dim_approx.size() - bits, cur_dim_approx.size());
 		}
-		//cout << approx << endl;
 		this->approximations[i] = approx;
 	}
 	//approximations found
@@ -143,10 +135,6 @@ void VA_File::simple_search(PointND* pt, int k){
 	
 	for (int i = 0; i < k; i++){
 		knn_index[i] = dst[i].second;
+		qtree.push_back(points[i]);
 	}
-}
-
-void VA_File::optimal_search(PointND* pt, int k){
-	int i;
-	double d, l_i, u_i;
 }

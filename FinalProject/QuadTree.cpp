@@ -20,14 +20,14 @@ bool QuadTree::in_bbox(Point2D* pt){
 		pt->y <= area.top_left.y && pt->y >= area.bottom_right.y;
 }
 
-bool QuadTree::insert(Point2D* pt){
+bool QuadTree::insert(Point2D* pt, PointND* ptn){
 	if (!in_bbox(pt)){
 		//cout << "Out\n";
 		return 0;
 	}
 	if (points.size() < this->max_elements && !zero){
 		points.push_back(pt);
-		//cout << "points.size(): " << points.size() << endl;
+		n_points.push_back(ptn);
 		return 1;
 	}
 	//filled = 1;
@@ -35,10 +35,29 @@ bool QuadTree::insert(Point2D* pt){
 		subdivide();
 	}
 	
-	if (zero->insert(pt)) return 1;
-	if (one->insert(pt)) return 1;
-	if (two->insert(pt)) return 1;
-	if (three->insert(pt)) return 1;
+	if (zero->insert(pt,ptn)) return 1;
+	if (one->insert(pt,ptn)) return 1;
+	if (two->insert(pt,ptn)) return 1;
+	if (three->insert(pt,ptn)) return 1;
+	
+	return 0;
+}
+
+bool QuadTree::find(Point2D* pt, QuadTree*& region){
+	if (!in_bbox(pt)) return 0;
+	
+	if (!zero){
+		region = this;
+		for (int i = 0; i < this->points.size(); i++){
+			if (points.at(i)->x == pt->x && points.at(i)->y == pt->y) return 1;
+		}
+		return 0;
+	}
+	
+	if (zero->find(pt, region)) return 1;
+	if (one->find(pt, region)) return 1;
+	if (two->find(pt, region)) return 1;
+	if (three->find(pt, region)) return 1;
 	
 	return 0;
 }
@@ -67,10 +86,10 @@ void QuadTree::subdivide(){
 	bottom_right = area.bottom_right;
 	three = new QuadTree(top_left, bottom_right);
 	for(int i = 0; i < this->points.size(); i++){
-		zero->insert(points.at(i));
-		one->insert(points.at(i));
-		two->insert(points.at(i));
-		three->insert(points.at(i));
+		zero->insert(points.at(i), n_points.at(i));
+		one->insert(points.at(i), n_points.at(i));
+		two->insert(points.at(i), n_points.at(i));
+		three->insert(points.at(i), n_points.at(i));
 	}
 	points.clear();
 }

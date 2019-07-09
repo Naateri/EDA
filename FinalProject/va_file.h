@@ -29,18 +29,16 @@ private:
 	vector<vector<double>> marks;
 	vector<string> approximations;
 	vector<PointND*> points;
-	/*vector<double> dist;
-	vector<double> ans;*/
-	vector< pair<double, int> > dst; //first: dst, second: index
+	vector< pair<double, int> > dst; //first: dist, second: index
 	double l_bound(string a_i, PointND* q);
 	double init_candidate(int k);
 	double candidate(double d, int i, int k);
 public:
 	vector<int> knn_index;
+	vector<PointND*> qtree;
 	VA_File(int dim);
 	void build(vector<PointND*> pts);
-	void simple_search(PointND* pt, int k);
-	void optimal_search(PointND* pt, int k);
+	void simple_search(PointND* pt, int k); //knn
 };
 
 #endif

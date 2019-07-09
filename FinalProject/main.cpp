@@ -12,10 +12,15 @@ using namespace std;
 
 QuadTree* qt;
 VA_File* va_file;
+VA_File* qt_file;
 vector<Point2D*> points;
 vector<PointND*> full_data_pts;
 
 vector<int> k_s = {5, 10, 100, 500, 1000, 5000};
+
+bool quadtree_search = 0; //change to 1 if you want to search
+//nearest neighbours in a quadtree leaf
+//0 for the whole vector
 
 void displayGizmo(){
 	glBegin(GL_LINES);
@@ -33,30 +38,6 @@ bool r = false;
 
 void draw_point(int x, int y);
 
-void OnMouseClick(int button, int state, int x, int y){
-	Point2D* pt;
-	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN){
-		//convertir x,y
-		//insertar un nuevo punto en el quadtree
-		std::cout << x-90 << " " << 180-y << std::endl;
-		//draw_point(x,y);	
-		pt = new Point2D(x-90,180-y);
-		qt->insert(pt);
-		points.push_back(pt);
-	}else if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN){
-		r = true;
-	}else if(button == GLUT_RIGHT_BUTTON && state == GLUT_UP){
-		r = false;
-	}
-}
-
-void OnMouseMotion(int x, int y){
-	if(r)
-		std::cout << x-90 << " " << 180-y << std::endl;
-	//opcional
-	//hacer algo x,z cuando se mueve el mouse
-}
-
 void idle(){ // AGREGAR ESTA FUNCION
 	glutPostRedisplay();
 }
@@ -69,7 +50,6 @@ void glPaint(void) {
 	glLoadIdentity();
 	glOrtho(-90.0f, 90.0f, -180.0f, 180.0f, -1.0f, 1.0f);
 	
-	//dibujar quadTree (qt->draw())
 	glPointSize(3);
 	glBegin(GL_POINTS);
 	for(int i = 0; i < points.size(); i++)
@@ -77,8 +57,18 @@ void glPaint(void) {
 	
 	glColor3d(255, 0, 0);
 	
-	for(int i = 0; i < va_file->knn_index.size(); i++){ //knn points
-		glVertex2f((float)points.at(va_file->knn_index[i])->x,(float)points.at(va_file->knn_index[i])->y );
+	if (quadtree_search){
+		Point2D* temp = new Point2D;
+		for(int i = 0; i < qt_file->qtree.size(); i++){
+			temp->x = qt_file->qtree.at(i)->point[0];
+			temp->y = qt_file->qtree.at(i)->point[1];
+			glVertex2f((float)temp->x,(float)temp->y );
+		}
+	}
+	else {
+		for(int i = 0; i < va_file->knn_index.size(); i++){ //knn points
+			glVertex2f((float)points.at(va_file->knn_index[i])->x,(float)points.at(va_file->knn_index[i])->y );
+		}
 	}
 	
 	glColor3d(0, 255, 0);
@@ -178,7 +168,7 @@ void insert_points(string file, int dim){
 			//filling on the data point
 			data->point[cur_dim] = atof(real_num.c_str());
 			points.push_back(geo);
-			qt->insert(geo);
+			qt->insert(geo, data);
 			full_data_pts.push_back(data);
 		}
 	}
@@ -205,11 +195,9 @@ int main (int argc, char *argv[]) {
 	glutReshapeFunc(&window_redraw);
 	// Callback del teclado
 	glutKeyboardFunc(&window_key);
-	glutMouseFunc(&OnMouseClick);
-	glutMotionFunc(&OnMouseMotion);
 	glutIdleFunc(&idle);
 	
-	int dimensions = 100;
+	int dimensions = 10;
 	
 	qt = new QuadTree();
 	va_file = new VA_File(dimensions);
@@ -217,7 +205,7 @@ int main (int argc, char *argv[]) {
 	//insert_points("dataset_d10pts100.csv", 10);
 	//insert_points("dataset_d2pts100.csv", 2);
 	clock_t begin = clock();
-	insert_points("dataset_d100pts1000000.csv", dimensions);
+	insert_points("dataset_d10pts100000.csv", dimensions);
 	clock_t end = clock();
 	
 	double elapsed_secs = double(end-begin) / CLOCKS_PER_SEC;
@@ -225,14 +213,29 @@ int main (int argc, char *argv[]) {
 	cout << "dataset built\n";
 	cout << "Built in " << elapsed_secs << " seconds\n";
 	
-	for(int i = 0; i < k_s.size(); i++){
-		clock_t begin2 = clock();
-		//va_file->simple_search(full_data_pts.at(6), 40000); //test search
-		va_file->simple_search(full_data_pts.at(6), k_s.at(i)); //test search
-		clock_t end2 = clock();
-		elapsed_secs = double(end2-begin2) / CLOCKS_PER_SEC;
+	vector<PointND*> temp_points_nd;
 	
-		cout << "knn found in " << elapsed_secs << " seconds\n";
+	if (quadtree_search){
+		cout << "Quadtree search\n";
+		QuadTree* region;
+		temp_points_nd.clear();
+		qt->find(points.at(6), region);
+		for(int i = 0; i < region->n_points.size(); i++){
+			temp_points_nd.push_back(region->n_points.at(i));
+		}
+		qt_file = new VA_File(dimensions);
+		qt_file->build(temp_points_nd);
+		qt_file->simple_search(full_data_pts.at(6), 25);
+	} else { //searching at all the canvas
+		cout << "Using all the canvas\n";
+		for(int i = 0; i < k_s.size(); i++){
+			clock_t begin2 = clock();
+			va_file->simple_search(full_data_pts.at(6), k_s.at(i)); //test search
+			clock_t end2 = clock();
+			elapsed_secs = double(end2-begin2) / CLOCKS_PER_SEC;
+			cout << "knn found in " << elapsed_secs << " seconds\n";
+		}
+		//va_file->simple_search(full_data_pts.at(6), 25); //test search
 	}
 	
 	glutMainLoop(); //bucle de rendering
