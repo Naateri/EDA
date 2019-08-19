@@ -228,16 +228,15 @@ int main (int argc, char *argv[]) {
 		qt_file->simple_search(full_data_pts.at(6), 25);
 	} else { //searching at all the canvas
 		cout << "Using all the canvas\n";
-		for(int i = 0; i < k_s.size(); i++){
+		/*for(int i = 0; i < k_s.size(); i++){
 			clock_t begin2 = clock();
 			va_file->simple_search(full_data_pts.at(6), k_s.at(i)); //test search
 			clock_t end2 = clock();
 			elapsed_secs = double(end2-begin2) / CLOCKS_PER_SEC;
 			cout << "knn found in " << elapsed_secs << " seconds\n";
-		}
-		//va_file->simple_search(full_data_pts.at(6), 25); //test search
+		}*/
+		va_file->simple_search(full_data_pts.at(6), 50); //test search
 	}
-	
 	glutMainLoop(); //bucle de rendering
 	//no escribir nada abajo de mainloop
 	return 0;
